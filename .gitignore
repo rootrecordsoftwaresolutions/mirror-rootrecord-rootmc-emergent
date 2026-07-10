@@ -33,3 +33,8 @@ Thumbs.db
 *.log
 tmp-*.json
 api/rootmc-api/migrations/.d1-applied-remote.txt
+*.env
+credentials.json
+*.pem
+*.key
+.credentials
