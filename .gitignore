@@ -1,0 +1,35 @@
+# Dependencies / build
+node_modules/
+.pnpm-store/
+build/
+dist/
+.next/
+.wrangler/
+.gradle/
+**/app/build/
+**/captures/
+.externalNativeBuild/
+.cxx/
+
+# Secrets / local
+.env
+.env.*
+!.env.example
+credentials.env
+local.properties
+google-services.json
+*.jks
+*.keystore
+.deploy-jwt
+.deploy-internal-wallet-key
+
+# IDE / OS
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Logs / temp
+*.log
+tmp-*.json
+api/rootmc-api/migrations/.d1-applied-remote.txt
