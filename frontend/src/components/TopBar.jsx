@@ -13,7 +13,7 @@ export default function TopBar() {
       try {
         const { data } = await api.get("/server/status");
         if (!cancelled) setStatus(data);
-      } catch {}
+      } catch { /* noop */ }
     };
     load();
     const t = setInterval(load, 30_000);

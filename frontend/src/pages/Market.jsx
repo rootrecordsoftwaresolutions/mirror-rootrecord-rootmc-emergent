@@ -44,8 +44,7 @@ export default function Market() {
     const sp = new URLSearchParams(params);
     sp.set("sort", sort);
     setParams(sp, { replace: true });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sort]);
+  }, [sort, params, setParams]);
 
   const filtered = q
     ? items.filter(

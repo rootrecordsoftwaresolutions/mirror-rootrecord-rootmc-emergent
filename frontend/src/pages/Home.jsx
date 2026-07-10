@@ -31,12 +31,12 @@ export default function Home() {
         setMarket(mk.data.items);
         setStatus(st.data);
         setReport(rp.data);
-      } catch {}
+      } catch { /* noop */ }
       if (user) {
         try {
           const { data } = await api.get("/checkin/status");
           setCheckin(data);
-        } catch {}
+        } catch { /* noop */ }
       }
     })();
   }, [user]);

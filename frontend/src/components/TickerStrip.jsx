@@ -14,7 +14,7 @@ export default function TickerStrip() {
       try {
         const { data } = await api.get("/market/items?sort=volume");
         if (!cancelled) setItems(data.items.slice(0, 12));
-      } catch {}
+      } catch { /* noop */ }
     };
     load();
     const t = setInterval(load, 60_000);

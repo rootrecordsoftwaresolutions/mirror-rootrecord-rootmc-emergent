@@ -76,13 +76,17 @@ function CheckInTab({ refreshUser }) {
   const [status, setStatus] = useState(null);
   const [claiming, setClaiming] = useState(false);
   const [celebrate, setCelebrate] = useState(false);
-  const [now, setNow] = useState(Date.now());
+  const [tick, setTick] = useState(0);
+  const loadedAtRef = React.useRef(Date.now());
 
   useEffect(() => {
-    api.get("/checkin/status").then(({ data }) => setStatus(data));
+    api.get("/checkin/status").then(({ data }) => {
+      loadedAtRef.current = Date.now();
+      setStatus(data);
+    });
   }, []);
   useEffect(() => {
-    const t = setInterval(() => setNow(Date.now()), 1000);
+    const t = setInterval(() => setTick((v) => v + 1), 1000);
     return () => clearInterval(t);
   }, []);
 
@@ -96,6 +100,7 @@ function CheckInTab({ refreshUser }) {
       setCelebrate(true);
       setTimeout(() => setCelebrate(false), 1600);
       const { data: s } = await api.get("/checkin/status");
+      loadedAtRef.current = Date.now();
       setStatus(s);
       refreshUser();
     } catch (e) {
@@ -156,7 +161,7 @@ function CheckInTab({ refreshUser }) {
               ? "Claiming…"
               : status.can_claim
               ? "Claim reward"
-              : `Next in ${fmtCountdown(Math.max(0, status.seconds_until_next - Math.floor((Date.now() - now) / 1000)))}`}
+              : `Next in ${fmtCountdown(Math.max(0, status.seconds_until_next - Math.floor((Date.now() - loadedAtRef.current) / 1000)))}`}
           </motion.button>
         </div>
 
@@ -210,16 +215,21 @@ function CheckInTab({ refreshUser }) {
 function VoteTab({ refreshUser }) {
   const [data, setData] = useState(null);
   const [claiming, setClaiming] = useState(null);
-  const [now, setNow] = useState(Date.now());
+  const [tick, setTick] = useState(0);
+  const loadedAtRef = React.useRef(Date.now());
   const [pending, setPending] = useState({}); // siteId -> boolean (visited, can claim)
 
-  const load = () => api.get("/vote/sites").then(({ data }) => setData(data));
+  const load = () =>
+    api.get("/vote/sites").then(({ data }) => {
+      loadedAtRef.current = Date.now();
+      setData(data);
+    });
 
   useEffect(() => {
     load();
   }, []);
   useEffect(() => {
-    const t = setInterval(() => setNow(Date.now()), 1000);
+    const t = setInterval(() => setTick((v) => v + 1), 1000);
     return () => clearInterval(t);
   }, []);
 
@@ -273,7 +283,7 @@ function VoteTab({ refreshUser }) {
 
       <div className="space-y-2">
         {data.sites.map((s) => {
-          const cooldown = Math.max(0, s.seconds_until - Math.floor((Date.now() - now) / 1000));
+          const cooldown = Math.max(0, s.seconds_until - Math.floor((Date.now() - loadedAtRef.current) / 1000));
           const canClaim = s.can_claim || pending[s.id];
           const showClaim = pending[s.id] && s.can_claim; // visited & ready
           return (

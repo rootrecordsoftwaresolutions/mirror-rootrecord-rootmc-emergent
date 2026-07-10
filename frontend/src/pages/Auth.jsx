@@ -118,7 +118,7 @@ export default function Auth() {
                 </button>
               </div>
               <p className="text-xs text-text-secondary mt-2 leading-relaxed">
-                In production, you'd run <span className="font-mono text-white">/link</span> in-game to get this code. For demo, we've pre-filled it.
+                In production, you&apos;d run <span className="font-mono text-white">/link</span> in-game to get this code. For demo, we&apos;ve pre-filled it.
               </p>
             </div>
           )}
