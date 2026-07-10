@@ -10,9 +10,11 @@ root.render(
   <BrowserRouter>
     <App />
     <Toaster
-      position="top-center"
+      position="bottom-center"
       theme="dark"
+      offset="80px"
       toastOptions={{
+        duration: 2600,
         style: {
           background: "#121212",
           border: "1px solid rgba(255,255,255,0.12)",
