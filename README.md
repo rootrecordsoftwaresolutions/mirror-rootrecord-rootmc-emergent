@@ -12,7 +12,9 @@ Standalone GitHub repo for **Emergent AI** to own large, cross-surface updates t
 | [`api/shared/`](api/shared/) | — | Vendored TS helpers from RootRecord monorepo |
 | [`api/rootrecord-api-account/`](api/rootrecord-api-account/) | — | Vendored account shard (auth, FCM, D1 migrations) |
 | [`android/`](android/) | Play: `com.rootrecord.rootmc` | Kotlin / Compose companion app |
-| [`frontend/`](frontend/) + [`backend/`](backend/) | Emergent preview / future `app.rootmc.net` | React PWA + FastAPI (**mock data today** — see [docs/POST-EMERGENT.md](docs/POST-EMERGENT.md)) |
+| [`frontend/`](frontend/) + [`backend/`](backend/) | Emergent preview / future `app.rootmc.net` | React PWA + FastAPI (**mock data today**) |
+
+**Emergent final push:** [docs/EMERGENT-LAST-PUSH.md](docs/EMERGENT-LAST-PUSH.md) — merged Cursor + Grok checklist (wire live API, fix bugs, deploy).
 
 ## Live URLs
 

@@ -3,7 +3,8 @@
 **Date:** July 9, 2026  
 **Repo:** https://github.com/Rootmcnet/rootmc-emergent  
 **After:** Emergent job `f71356dc` — React PWA + FastAPI/Mongo stack (`frontend/`, `backend/`)  
-**Read first:** [memory/PRD.md](../memory/PRD.md) (Emergent’s own delivery notes)
+**Read first:** [memory/PRD.md](../memory/PRD.md) (Emergent’s own delivery notes)  
+**Action checklist:** [EMERGENT-LAST-PUSH.md](EMERGENT-LAST-PUSH.md) (merged Cursor + Grok — **give this to Emergent for the final push**)
 
 ---
 
