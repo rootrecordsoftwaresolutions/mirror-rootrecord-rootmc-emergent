@@ -2,7 +2,7 @@
 
 ## 1. Create the remote repo
 
-On GitHub (suggested: **Rootmcnet/rootmc-emergent**, private recommended):
+On GitHub: **Rootmcnet/rootmc-emergent** (private recommended):
 
 - Description: `RootMC website + API + Android — Emergent AI deployment`
 - Do **not** initialize with README (this export already has one)

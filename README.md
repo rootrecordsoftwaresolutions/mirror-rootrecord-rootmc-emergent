@@ -69,7 +69,7 @@ That re-copies `web/`, `api/`, `android/` and patches deploy paths for this repo
 
 ## Publish to GitHub / Emergent
 
-See **[docs/GITHUB-SETUP.md](docs/GITHUB-SETUP.md)** — create `Rootmcnet/rootmc-emergent`, push, connect Emergent with **PROMPT.md** as the brief.
+See **[docs/GITHUB-SETUP.md](docs/GITHUB-SETUP.md)** — repo: **https://github.com/Rootmcnet/rootmc-emergent** — connect Emergent with **PROMPT.md** as the brief.
 
 | Repo | What |
 |------|------|
