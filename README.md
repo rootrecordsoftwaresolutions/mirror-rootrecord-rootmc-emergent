@@ -14,7 +14,7 @@ Standalone GitHub repo for **Emergent AI** to own large, cross-surface updates t
 | [`android/`](android/) | Play: `com.rootrecord.rootmc` | Kotlin / Compose companion app |
 | [`frontend/`](frontend/) + [`backend/`](backend/) | Emergent preview / future `app.rootmc.net` | React PWA + FastAPI (**mock data today**) |
 
-**Emergent final push:** [docs/EMERGENT-LAST-PUSH.md](docs/EMERGENT-LAST-PUSH.md) — merged Cursor + Grok checklist (wire live API, fix bugs, deploy).
+**Emergent final push:** [EMERGENT-READ-THIS.md](EMERGENT-READ-THIS.md) → [docs/EMERGENT-LAST-PUSH.md](docs/EMERGENT-LAST-PUSH.md)
 
 ## Live URLs
 

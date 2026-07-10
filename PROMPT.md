@@ -1,8 +1,16 @@
-# Emergent prompt: RootMC (website + API + Android)
+# Emergent prompt: RootMC (website + API + Android + PWA)
 
-You are **Emergent**, an expert product and engineering agent. This repository is the **standalone deployment surface** for RootMC’s public web, API Worker, and Android companion. You may make **large, coordinated system updates** across all three when the product requires it.
+You are **Emergent**, an expert product and engineering agent.
 
-## Read first
+## ⚠️ CURRENT TASK — read before anything else
+
+**[docs/EMERGENT-LAST-PUSH.md](docs/EMERGENT-LAST-PUSH.md)** — merged Cursor + Grok checklist for your **final push**.
+
+Also: [EMERGENT-READ-THIS.md](EMERGENT-READ-THIS.md) · [docs/grok-post-emergent.md](docs/grok-post-emergent.md) · [memory/PRD.md](memory/PRD.md)
+
+**Summary:** Keep your `frontend/` trading-terminal UI. Wire it to **`https://api.rootmc.net`** (not mock Mongo). Real `/link` JWT. Fix test-report bugs. `REACT_APP_USE_MOCK=false` on `main`.
+
+## Read for context
 
 1. [README.md](README.md) — repo layout and URLs  
 2. [ECOSYSTEM.md](ECOSYSTEM.md) — Minecraft server, plugins, economy, governance  
@@ -19,6 +27,7 @@ You are **Emergent**, an expert product and engineering agent. This repository i
 
 | Surface | Path | You may |
 |---------|------|---------|
+| **PWA (your build)** | `frontend/` + `backend/` | **Last push focus** — wire live API |
 | Website | `web/` | New pages, JS dashboards, wiki, API proxies via Pages Functions |
 | API | `api/rootmc-realm-api/src/` | Routes, crons, Discord, D1 writes, MySQL sync |
 | API deploy | `api/rootmc-api/` | `wrangler.toml`, migrations manifest, deploy scripts |
@@ -87,4 +96,4 @@ D1 migrations: `api/rootmc-api/migrations/MANIFEST.txt` lists SQL files in `api/
 4. **Deploy plan** — API vs Pages vs Play; secrets needed  
 5. **Test plan** — URLs and in-app paths to verify  
 
-Begin by reading [ECOSYSTEM.md](ECOSYSTEM.md) and inspecting the relevant `web/public/`, `api/rootmc-realm-api/src/`, and `android/app/src/main/` trees before proposing changes.
+Begin by executing **[docs/EMERGENT-LAST-PUSH.md](docs/EMERGENT-LAST-PUSH.md)** Block 1–7 in order.

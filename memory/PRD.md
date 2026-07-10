@@ -83,7 +83,14 @@ Existing repo surfaces (`web/`, `api/rootmc-*`, `android/`) are **untouched** �
 ### P2 — Kotlin/Compose native parity
 - [ ] Port the same screens as Compose to `/app/android/app/src/main/java/com/rootrecord/rootmc/ui/*` so the Play Store binary matches this PWA. (Requires local Android SDK build — out of scope for this environment.)
 
-## Next tasks
-1. Point PWA at real `api.rootmc.net` via a `REACT_APP_ROOTMC_API` env var + a small proxy layer in FastAPI, so devs can toggle mock vs live.
-2. Wire treasury debit into the check-in / vote endpoints on the real Worker.
-3. Add PWA install prompt + service worker for offline shell.
+## Next tasks — **see [docs/EMERGENT-LAST-PUSH.md](../docs/EMERGENT-LAST-PUSH.md)**
+
+Human + Cursor + Grok merged the final push into `docs/EMERGENT-LAST-PUSH.md`. Execute that file block-by-block. Do not add new mock features.
+
+Quick recap:
+1. `REACT_APP_ROOTMC_API=https://api.rootmc.net` + `REACT_APP_USE_MOCK=false`
+2. Real `/link` via Worker `POST /api/rootmc/realm/minecraft/link/app/complete`
+3. Disable Mongo wallet mint in prod; treasury on Worker for check-in/vote
+4. Fix Rewards countdown + TopBar SPA nav (see `test_reports/iteration_1.json`)
+5. Pull-to-refresh, sync timestamps, PWA service worker
+6. Update this PRD when done
