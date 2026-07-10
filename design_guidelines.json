@@ -1,0 +1,115 @@
+{
+  "project_name": "RootMC Economy Companion App",
+  "theme": "dark",
+  "archetype": "The Performance Pro + Retro-Futurism",
+  "typography": {
+    "headings": {
+      "font_family": "Outfit",
+      "weights": ["600", "800"],
+      "classes": "font-sans tracking-tight"
+    },
+    "body": {
+      "font_family": "Manrope",
+      "weights": ["400", "500"],
+      "classes": "font-sans leading-relaxed"
+    },
+    "mono": {
+      "font_family": "JetBrains Mono",
+      "weights": ["400", "700"],
+      "classes": "font-mono tracking-tighter"
+    },
+    "hierarchy": {
+      "h1": "text-4xl sm:text-5xl font-extrabold tracking-tight",
+      "h2": "text-2xl sm:text-3xl font-bold tracking-tight",
+      "h3": "text-lg sm:text-xl font-semibold",
+      "portfolio_value": "text-5xl sm:text-6xl font-mono font-bold tracking-tighter",
+      "ticker": "text-base font-mono",
+      "labels": "text-xs font-mono uppercase tracking-[0.2em]"
+    }
+  },
+  "colors": {
+    "background": {
+      "base": "#050505",
+      "surface": "#121212",
+      "surface_elevated": "#1C1C1E"
+    },
+    "text": {
+      "primary": "#FFFFFF",
+      "secondary": "#8A8A8E",
+      "muted": "#525255"
+    },
+    "brand": {
+      "gold": "#FFB800",
+      "gold_muted": "rgba(255, 184, 0, 0.2)"
+    },
+    "semantic": {
+      "positive": "#00F58C",
+      "negative": "#FF453A",
+      "warning": "#FF9F0A",
+      "info": "#0A84FF"
+    },
+    "borders": {
+      "default": "rgba(255,255,255,0.1)",
+      "focus": "rgba(255,184,0,0.5)"
+    }
+  },
+  "visual_enhancers": {
+    "borders": "1px solid border. Use 'border border-white/10' globally for cards.",
+    "shadows": "Minimal. Use inner glows for active states rather than drop shadows: 'shadow-[inset_0_0_0_1px_rgba(255,255,255,0.1)]'",
+    "radius": "Subtle roundness. Use 'rounded-md' (6px) or 'rounded-lg' (8px) everywhere to maintain a structural, terminal feel.",
+    "glassmorphism": "Avoid heavy blur. Use 'bg-white/5 backdrop-blur-md' exclusively for sticky bottom nav or header. Do not use fully transparent headers."
+  },
+  "grids": {
+    "bento": "Use dense grid layouts. 'grid-cols-2 gap-4' for mobile dashboards. Span full width for charts ('col-span-2').",
+    "spacing": "Use 'p-4' for standard cards, 'p-6' for hero elements. Maintain tight density for trading stats to fit more data on screen."
+  },
+  "layouts": {
+    "mobile_first": true,
+    "navigation": "Sticky Bottom Navigation Bar ('fixed bottom-0 w-full z-50 bg-[#050505]/80 backdrop-blur-xl border-t border-white/10 pb-safe'). Top Header with Server Status.",
+    "containers": "Max width 'max-w-md mx-auto min-h-screen relative pb-24' to simulate mobile app on desktop browsers while keeping it full width on actual mobile devices."
+  },
+  "components": {
+    "buttons": "Sharp, technical. 'bg-white/10 hover:bg-white/20 text-white rounded-md transition-colors'. Primary action (Claim/Auth) uses brand gold: 'bg-[#FFB800] hover:bg-[#E6A600] text-black font-bold'.",
+    "cards": "'bg-[#121212] border border-white/10 rounded-md overflow-hidden relative'. Must have explicit hover state if interactive (e.g. Market list items).",
+    "inputs": "Technical auth input. 'bg-black border border-white/20 rounded-md font-mono text-center focus:border-[#FFB800] focus:ring-1 focus:ring-[#FFB800]'.",
+    "tabs": "Segmented control style. 'bg-white/5 p-1 rounded-md'. Active tab 'bg-[#1C1C1E] shadow-sm text-white'.",
+    "charts": "Recharts. Remove grid lines, hide axes, use simple stroke lines with linearGradient fills. Positive/Negative color mapping based on delta. Ring chart for portfolio breakdown."
+  },
+  "motion": {
+    "page_transitions": "Framer Motion. Fade and slight slide up: 'initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}'.",
+    "micro_interactions": "Tap compression on buttons: 'whileTap={{ scale: 0.97 }}'.",
+    "celebration": "Daily check-in requires a celebratory burst using Framer Motion (staggered particles) or a confetti/reward animation sequence.",
+    "accessibility": "Respect prefers-reduced-motion."
+  },
+  "image_urls": {
+    "economy_hero": {
+      "url": "https://images.unsplash.com/photo-1762279388956-1c098163a2a8?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njl8MHwxfHNlYXJjaHwzfHxhYnN0cmFjdCUyMGRhdGElMjBjaGFydCUyMGRhcmslMjBuZW9ufGVufDB8fHx8MTc4MzY1NjI4Nnww&ixlib=rb-4.1.0&q=85",
+      "description": "Abstract neon lines forming a digital landscape. Use with a low opacity overlay as a background texture for the Portfolio or Economy Pulse headers."
+    },
+    "vote_site_bg": {
+      "url": "https://images.unsplash.com/photo-1673904788072-40f58f0c43e1?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2ODl8MHwxfHNlYXJjaHwxfHxnb2xkJTIwY29pbiUyMDNkJTIwZGFyayUyMGJhY2tncm91bmR8ZW58MHx8fHwxNzgzNjU2Mjg2fDA&ixlib=rb-4.1.0&q=85",
+      "description": "Gold coins in darkness. Use for Vote Site cards or the Daily check-in claim card backdrop."
+    }
+  },
+  "instructions_to_main_agent": [
+    "Build a mobile-first PWA using React (JavaScript), Tailwind CSS, and Framer Motion.",
+    "DO NOT CREATE .tsx FILES. ONLY .js AND .jsx ARE ALLOWED.",
+    "Implement navigation optimized for a bottom tab bar layout (Dashboard, Market, Portfolio, Vote).",
+    "Use Recharts for the stock market sparklines and the main Portfolio pie/ring chart. Make charts highly readable in dark mode.",
+    "Format all prices with 'G' (Gold) suffix and use 'JetBrains Mono' font for all numeric data.",
+    "Ensure 'data-testid' attributes are present on all interactive elements (buttons, links, form inputs) to support automated testing.",
+    "For the player auth /link logic, use a 6-character code input stylized heavily with monospace font to look like a Minecraft server code / 2FA.",
+    "Implement the Daily Check-In with a 7-day streak grid. Active 'Claim' button should have a visual pulse.",
+    "Vote Cards must have a 24h countdown timer state and external link logic pointing to rootmc.net.",
+    "All components should be optimized for touch (min 44px tap targets)."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "Do not use generic centered layouts. Opt for left-aligned or grid-based optical alignment.",
+    "DO NOT use dark colors as full UI gradients (e.g., from-gray-900 to-black). Keep background surfaces solid flat colors like #050505.",
+    "Use glass-morphism effects with backdrop filters (12-24px blur) for sticky headers/navs only. Never use a fully transparent header.",
+    "Every interaction needs micro-animations - hover states, active states, click compressions.",
+    "Always use modern button styles (rounded-md with explicit hover states).",
+    "Never use AI assistant Emoji characters. Use lucide-react for all iconography.",
+    "Use 'sonner' for toast notifications (e.g., upon successful daily claim or voting)."
+  ]
+}
