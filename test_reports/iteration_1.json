@@ -1,0 +1,44 @@
+{
+  "summary": "Comprehensive first-pass testing of RootMC Mobile Companion PWA. Backend: 31/31 pytest passed (auth /link demo flow, market list/detail sorting/filter, portfolio, checkin claim + wallet increment, vote claim + cooldown, leaderboards, daily report). Frontend: 74/74 UI checks passed after retest (initial 2 failures were retest-timing artifacts — daily-report-card and range-* buttons render after async fetch completes; both verified working). Full user journey works end-to-end: /link demo login (code auto-prefill), navigation across all 5 bottom tabs, market sort/search/detail with range switching, portfolio with net worth + holdings, daily check-in claim with confetti + wallet +10G + cooldown, vote flow (Vote -> Claim -> Cooldown), leaderboards 4 categories, session persistence on reload, logout clears token. Design fidelity confirmed: JetBrains Mono numerics, gold accent, pos #00F58C / neg #FF453A colors, sticky bottom nav with gold underline.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "/api/economy/overview and /api/server/status and /api/daily-report/latest", "issue": "Endpoints mutate `doc` object returned from Motor find_one and modify keys in-place. Non-blocking but future refactor risk if response objects get cached."},
+      {"endpoint": "/api/checkin/claim & /api/vote/claim", "issue": "`new_wallet_balance` is computed from user object read before the $inc update; if concurrent claims fire, the returned value could be stale. Actual DB value is correct via $inc. Recommend re-reading after update or using find_one_and_update return_document=AFTER."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Rewards -> Check-in", "issues": ["Countdown text uses `Math.max(0, seconds_until_next - Math.floor((Date.now() - now) / 1000))` but `now` state is refreshed to Date.now() every second, so the subtraction is always ~0 — countdown never decrements visually until page reloads. Minor UX polish."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "Optional: fix stale countdown math in Rewards.jsx CheckInTab (compute against a fixed 'loadedAt' timestamp instead of `now` state).",
+    "Optional: return post-update wallet balance from /checkin/claim & /vote/claim using find_one_and_update(return_document=AFTER)."
+  ],
+  "critical_code_review_comments": [
+    "server.py (656 lines) is nearing the 700-line soft cap; consider splitting routers (auth/market/portfolio/rewards) into modules before further growth.",
+    "server.py routes mutate documents returned by Motor before serialisation (economy_overview jitters treasury on the fetched doc). Fine today since seeded once, but risky if switched to a cached MotorClient.",
+    "Frontend uses `window.location.href = '/more'` in TopBar for the avatar button which triggers a full page reload; should use react-router `navigate('/more')` for SPA feel.",
+    "Rewards.jsx VoteTab: `showClaim = pending[s.id] && s.can_claim` — after user votes and claims within same session, s.can_claim remains true briefly (from the site list already loaded) until load() re-fetches — small race window but currently OK because setPending(false) fires immediately.",
+    "auth.jsx: refresh() catches errors silently and calls setToken(null); this is correct but could log for debugging.",
+    "No debouncing on market-search input; not a bug for 20 items but worth noting for scale.",
+    "React Router v6 future flag warnings in console (v7_startTransition, v7_relativeSplatPath) — cosmetic only."
+  ],
+  "updated_files": [
+    "/app/backend/tests/backend_test.py (new)"
+  ],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "None required — /link demo mode. Any Minecraft username (3-16 chars) starts the flow; the /auth/link/start endpoint returns the 6-char code which is prefilled in the code input.",
+  "seed_data_creation": "Backend auto-seeds on startup (18 market items, treasury/economy KV, server_status, daily_report, 12 leaderboard players). Test users created during pytest: 'QaBot{ts}', 'TestQA', 'FlowUser', 'Reuse' (harmless demo users).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "All 31 pytest tests + 74 Playwright UI assertions pass. Backend base URL is REACT_APP_BACKEND_URL from /app/frontend/.env. Mobile viewport is 420x900 (max-w-md container). The two initially-failing UI assertions (daily-report-card, range-1H..ALL) were false negatives due to insufficient wait for the async data load and were verified passing on retest. If you re-test, always wait_for_selector on data-dependent elements (they render inside `{data && ...}`). No auth needed for market/leaderboards/economy endpoints; portfolio/checkin/vote require Bearer token from /auth/link/complete.",
+  "rca of the issue": "N/A — no unresolved issues. Two Playwright transient false-negatives (daily-report-card, market-detail range buttons) were caused by the test asserting element presence immediately after a page navigation instead of waiting for the async fetch to populate. On retest with wait_for_selector, both rendered correctly. This is a testing-script pattern issue, not a product bug."
+}
