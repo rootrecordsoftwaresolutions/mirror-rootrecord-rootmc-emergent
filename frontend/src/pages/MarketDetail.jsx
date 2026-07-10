@@ -1,10 +1,13 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { ChevronLeft, ArrowUpRight, ArrowDownRight, TrendingUp, Package, Layers } from "lucide-react";
 import { api } from "../lib/api";
-import { fmtG, fmtPct, fmtNum } from "../lib/format";
+import { fmtG, fmtPct } from "../lib/format";
+import SyncBadge from "../components/SyncBadge";
+import PullIndicator from "../components/PullIndicator";
+import { usePullToRefresh } from "../lib/usePullToRefresh";
 
 const ranges = ["1H", "1D", "1W", "1M", "ALL"];
 
@@ -14,14 +17,22 @@ export default function MarketDetail() {
   const [range, setRange] = useState("1D");
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [syncedAt, setSyncedAt] = useState(null);
 
-  useEffect(() => {
+  const load = useCallback(async () => {
     setLoading(true);
-    api
-      .get(`/market/item/${ticker}`, { params: { range } })
-      .then(({ data }) => setData(data))
-      .finally(() => setLoading(false));
+    try {
+      const { data } = await api.get(`/market/item/${ticker}`, { params: { range } });
+      setData(data);
+      setSyncedAt(Date.now());
+    } finally {
+      setLoading(false);
+    }
   }, [ticker, range]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const ptr = usePullToRefresh(load);
 
   const up = (data?.change_24h_pct ?? 0) >= 0;
   const stroke = up ? "#00F58C" : "#FF453A";
@@ -31,13 +42,17 @@ export default function MarketDetail() {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="px-4 pt-4 pb-4 space-y-5"
+      className="px-4 pt-4 pb-4 space-y-5 relative"
       data-testid="market-detail"
     >
-      <button onClick={() => nav(-1)} className="flex items-center gap-1 text-text-secondary hover:text-white" data-testid="detail-back">
-        <ChevronLeft size={18} />
-        <span className="text-xs font-mono uppercase tracking-widest">Back</span>
-      </button>
+      <PullIndicator {...ptr} />
+      <div className="flex items-center justify-between">
+        <button onClick={() => nav(-1)} className="flex items-center gap-1 text-text-secondary hover:text-white" data-testid="detail-back">
+          <ChevronLeft size={18} />
+          <span className="text-xs font-mono uppercase tracking-widest">Back</span>
+        </button>
+        <SyncBadge syncedAt={syncedAt} />
+      </div>
 
       {loading && <div className="py-16 text-center text-text-secondary">Loading…</div>}
       {data && (

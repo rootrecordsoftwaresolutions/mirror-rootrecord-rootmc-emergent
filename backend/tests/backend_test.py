@@ -319,6 +319,49 @@ class TestPWA:
         assert r.status_code == 200, f"/manifest.json returned {r.status_code}"
         j = r.json()
         assert j.get("short_name") == "RootMC"
-        assert isinstance(j.get("icons"), list) and len(j["icons"]) > 0
-        for icon in j["icons"]:
-            assert "src" in icon and "sizes" in icon
+        icons = j.get("icons")
+        assert isinstance(icons, list) and len(icons) == 3, f"expected 3 icons, got {len(icons) if icons else 0}"
+        # Ensure exactly one of each expected icon entry
+        srcs = {ic.get("src"): ic for ic in icons}
+        assert "/icons/icon-192.png" in srcs
+        assert "/icons/icon-512.png" in srcs
+        assert "/icons/icon-maskable-512.png" in srcs
+        assert srcs["/icons/icon-192.png"]["sizes"] == "192x192"
+        assert srcs["/icons/icon-192.png"]["type"] == "image/png"
+        assert srcs["/icons/icon-512.png"]["sizes"] == "512x512"
+        assert srcs["/icons/icon-512.png"]["type"] == "image/png"
+        assert srcs["/icons/icon-maskable-512.png"]["sizes"] == "512x512"
+        assert srcs["/icons/icon-maskable-512.png"].get("purpose") == "maskable"
+
+    @pytest.mark.parametrize("icon", [
+        "icon-192.png",
+        "icon-512.png",
+        "icon-maskable-512.png",
+    ])
+    def test_png_icons_reachable(self, s, icon):
+        r = s.get(f"{BASE_URL}/icons/{icon}")
+        assert r.status_code == 200, f"/icons/{icon} returned {r.status_code}"
+        ct = r.headers.get("content-type", "")
+        assert "image/png" in ct.lower(), f"/icons/{icon} content-type={ct}"
+
+    @pytest.mark.parametrize("svg", ["icon-192.svg", "icon-512.svg"])
+    def test_stale_svg_icons_removed(self, s, svg):
+        """
+        Stale SVG icons were removed from /app/frontend/public.
+        In this preview env CRA dev server falls back to index.html (200 text/html)
+        for unknown paths; in production the request will 404. Either way, the
+        response must NOT be an SVG image.
+        """
+        r = s.get(f"{BASE_URL}/{svg}")
+        ct = r.headers.get("content-type", "").lower()
+        assert r.status_code == 404 or "svg" not in ct, (
+            f"/{svg} unexpectedly served as SVG (status={r.status_code}, ct={ct})"
+        )
+
+    def test_service_worker_reachable(self, s):
+        r = s.get(f"{BASE_URL}/service-worker.js")
+        assert r.status_code == 200, f"/service-worker.js returned {r.status_code}"
+        ct = r.headers.get("content-type", "")
+        assert "javascript" in ct.lower() or "text" in ct.lower(), f"unexpected content-type={ct}"
+        # Ensure some JS-ish content is returned
+        assert len(r.text) > 0

@@ -1,0 +1,34 @@
+{
+  "summary": "Phase 2 RootMC final-polish verification complete. Backend split into server.py (app factory) + core.py + routers/{auth,market,portfolio,rewards,public}.py — regression clean: 38/38 pytest suites PASSED (32 previous + 6 new PWA assertions). Frontend Playwright flow on 420x900 mobile viewport passed all 10 review scenarios end-to-end. NEW findings verified: (1) /manifest.json returns short_name=RootMC and exactly 3 PNG icons at /icons/icon-{192,512,maskable-512}.png with correct sizes/types; the maskable icon has purpose=maskable. (2) All 3 PNG icons return 200 with content-type image/png. (3) SVG icon files are physically deleted from /app/frontend/public — the preview CRA dev server returns SPA index.html fallback for /icon-192.svg and /icon-512.svg (200 text/html) which is expected dev-server behaviour; production static hosting will 404 (test asserts NOT served as SVG which passes). (4) /service-worker.js returns 200 with content-type application/javascript. (5) MarketDetail (/market/:ticker) now has [data-testid=market-detail] with computed style position=relative, SyncBadge visible, and PullIndicator mounted-on-demand (only renders when pullDist>4 or refreshing — verified in component source). (6) Sonner toast now bottom-center: data-y-position=bottom, data-x-position=center, rect top=830/bottom=884 on 900px viewport — 'Linked as <user>' toast no longer overlaps top-right avatar. Regression items all pass: check-in claim (+10G, streak-day-1 becomes done, button disabled after), 5 vote sites listed with earned-today counter, 4 leaderboard tabs each render 12 rows, player-search submit disabled at 0/2 chars and enabled at 5 chars, rewards-gated-banner correctly hidden with REACT_APP_USE_MOCK=true, beta feedback row present, logout clears session.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "server.py is now a clean 39-line app factory — great refactor. routers/ modules use absolute imports (from core import ...) which is consistent with `uvicorn server:app` run in /app/backend; imports from routers are `from routers import auth, ...` — pattern is correct and works with the existing supervisor config.",
+    "manifest.json now has exactly 3 PNG icons per spec (192, 512, 512-maskable) with correct type=image/png and purpose=maskable on the last entry. index.html apple-touch-icon and favicon both point to /icons/icon-192.png — no more SVG references anywhere.",
+    "MarketDetail wrapper is `position: relative` and mounts PullIndicator conditionally. usePullToRefresh + SyncBadge integrated the same way as Home/Market/Portfolio — pattern is consistent across routes.",
+    "public/service-worker.js is served correctly (200 application/javascript). Note (carry-over from iter_2): navigator.serviceWorker.register('/service-worker.js') is still NOT called anywhere in src/index.js, so browsers will not activate the SW even though the manifest allows install. If real offline caching is a Phase-2 goal, main agent should add the register call — not blocking.",
+    "SVG icons: the SVG files ARE deleted from /app/frontend/public, but in the CRA dev preview the requests return 200 text/html (SPA fallback). This is expected and will 404 under Cloudflare Pages / any static host that respects file-not-found. The test asserts 'not served as SVG' which passes in both environments.",
+    "Sonner Toaster position is bottom-center in src/index.js — resolves the iteration_2 design concern about the 'Linked as ...' toast overlapping the top-right avatar. Confirmed by data-y-position/data-x-position attrs and bounding rect on real preview.",
+    "core.py holds Motor client + pydantic models + seed_if_empty. Single-file consolidation is fine for now; if the models grow further consider splitting models.py from db.py.",
+    "backend/tests/backend_test.py is the single-file pytest suite (renamed from previous native python tests). PWA class extended with 6 new assertions this iteration — kept in the same file for regression continuity."
+  ],
+  "updated_files": [
+    "/app/backend/tests/backend_test.py (added TestPWA: icon-file reachability x3, stale-svg-removed x2 (svg-content-type check), service-worker reachability, tightened manifest.json to require exactly 3 icons with per-entry src/sizes/type/purpose asserts)"
+  ],
+  "success_rate": {"backend": "100% (38/38)", "frontend": "100% (10/10 review scenarios)"},
+  "test_credentials": "None — demo /link mode. Test users created this run: PhaseTwoPtr, PtrRegBot2, VoteQaBot (frontend Playwright) + QaBot*/FlowUser/TestQA/Reuse (pytest).",
+  "seed_data_creation": "Backend still auto-seeds via core.seed_if_empty() on FastAPI lifespan startup — market items, economy overview, server status, daily report, leaderboards. Unchanged from prior iterations.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Backend was refactored into routers this iteration but all /api/* route paths are UNCHANGED — regression pytest is the source of truth. Vote-claim testids (vote-claim-<site>) only render on the frontend AFTER the user has opened the vote site (there is a stateful open->claim UX). To test the claim flow end-to-end from Playwright, you need to click vote-open-<site> first and simulate the returning-user state; otherwise the /api/vote/claim endpoint is best exercised directly via pytest (already covered). PullIndicator on MarketDetail also mounts conditionally (pullDist>4 || refreshing) — do NOT assert it's always in DOM; assert position:relative + SyncBadge presence instead. Sonner is bottom-center now (data-y-position=bottom / data-x-position=center) — the iter_2 top-right-avatar overlap concern is resolved. In this CRA dev preview, unknown paths (e.g. /icon-192.svg) fall back to index.html with 200 text/html — assert 'not served as SVG' instead of hard 404 for stale-asset-removal tests. Auth route is /auth (NOT /link) — /link is not a defined React Route; the wildcard '*' route falls back to Home which is why an unauthenticated visit to /link renders home-signin-btn.",
+  "rca of the issue": "N/A — no bugs. The two initial pytest failures on stale-svg tests were test-expectation issues (dev server SPA fallback returns 200 for missing files) — updated the assertion to check content-type is not svg, which correctly validates the intent (SVG assets no longer served) and passes in both dev and production hosts."
+}
