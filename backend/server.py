@@ -13,6 +13,7 @@ Mirrors rootmc.net endpoints in condensed form for the mobile PWA.
 from fastapi import FastAPI, HTTPException, Depends, Header, APIRouter, status
 from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import ReturnDocument
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
 from datetime import datetime, timezone, timedelta, date
@@ -552,12 +553,13 @@ async def checkin_claim(user=Depends(get_current_user)):
             streak = 0
     new_streak = streak + 1 if streak < 7 else 1  # weekly loop
     reward = _checkin_reward(streak)  # reward for current tier
-    await users.update_one(
+    updated = await users.find_one_and_update(
         {"_id": user["_id"]},
         {
             "$set": {"streak_count": new_streak, "last_checkin_at": now_utc()},
             "$inc": {"wallet_gold": reward["gold"]},
         },
+        return_document=ReturnDocument.AFTER,
     )
     await checkins.insert_one({
         "_id": new_id(),
@@ -572,7 +574,7 @@ async def checkin_claim(user=Depends(get_current_user)):
         "success": True,
         "reward": reward,
         "new_streak": new_streak,
-        "new_wallet_balance": round(user.get("wallet_gold", 0) + reward["gold"], 2),
+        "new_wallet_balance": round(updated.get("wallet_gold", 0), 2),
     }
 
 
@@ -626,9 +628,18 @@ async def vote_claim(body: VoteClaimBody, user=Depends(get_current_user)):
         "claimed_at": now_utc(),
         "reward_gold": reward_g,
     })
-    await users.update_one({"_id": user["_id"]}, {"$inc": {"wallet_gold": reward_g}})
+    updated = await users.find_one_and_update(
+        {"_id": user["_id"]},
+        {"$inc": {"wallet_gold": reward_g}},
+        return_document=ReturnDocument.AFTER,
+    )
     await kv.update_one({"_id": "economy"}, {"$inc": {"treasury_reserve": -reward_g, "24h_flows.out": reward_g}})
-    return {"success": True, "reward_gold": reward_g, "site": site["name"]}
+    return {
+        "success": True,
+        "reward_gold": reward_g,
+        "site": site["name"],
+        "new_wallet_balance": round(updated.get("wallet_gold", 0), 2),
+    }
 
 
 # --- Daily report ---

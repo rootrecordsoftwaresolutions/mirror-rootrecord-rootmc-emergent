@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "../lib/auth";
 import {
   LogOut, Trophy, MessageSquare, BookOpen, Scale, Map, ExternalLink, ChevronRight, User, HelpCircle,
+  Search, MessagesSquare,
 } from "lucide-react";
 import { fmtG } from "../lib/format";
 
@@ -17,6 +18,15 @@ const linksExternal = [
 export default function More() {
   const nav = useNavigate();
   const { user, logout } = useAuth();
+  const [playerQuery, setPlayerQuery] = useState("");
+
+  const submitPlayerSearch = (e) => {
+    e.preventDefault();
+    const q = playerQuery.trim();
+    if (q.length < 3) return;
+    // Public web player profile until in-app API exists.
+    window.open(`https://rootmc.net/player/?u=${encodeURIComponent(q)}`, "_blank", "noopener,noreferrer");
+  };
 
   return (
     <motion.div
@@ -71,6 +81,39 @@ export default function More() {
         />
       </Section>
 
+      {/* Player search */}
+      <div>
+        <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-text-secondary mb-1.5">
+          Player Search
+        </div>
+        <form
+          onSubmit={submitPlayerSearch}
+          className="flex items-center gap-2 rounded-md border border-white/10 bg-bg-surface px-3 py-2"
+          data-testid="more-player-search-form"
+        >
+          <Search size={14} className="text-text-secondary shrink-0" />
+          <input
+            value={playerQuery}
+            onChange={(e) => setPlayerQuery(e.target.value)}
+            placeholder="Minecraft username…"
+            maxLength={16}
+            data-testid="more-player-search-input"
+            className="flex-1 bg-transparent font-mono text-sm text-white placeholder:text-text-muted focus:outline-none"
+          />
+          <button
+            type="submit"
+            disabled={playerQuery.trim().length < 3}
+            data-testid="more-player-search-submit"
+            className="rounded-md bg-gold disabled:opacity-40 text-black text-[10px] font-mono uppercase tracking-widest px-2.5 py-1.5"
+          >
+            Open
+          </button>
+        </form>
+        <p className="text-[10px] font-mono text-text-muted mt-1">
+          Opens rootmc.net player profile in a new tab (in-app API coming soon).
+        </p>
+      </div>
+
       <Section title="Community">
         {linksExternal.map((l) => (
           <Row
@@ -85,6 +128,13 @@ export default function More() {
       </Section>
 
       <Section title="Support">
+        <Row
+          testId="more-beta-feedback"
+          icon={<MessagesSquare size={16} />}
+          label="Beta Feedback"
+          external
+          onClick={() => window.open("https://discord.gg/rFFQYrNaqS", "_blank")}
+        />
         <Row
           testId="more-support"
           icon={<HelpCircle size={16} />}
@@ -107,7 +157,7 @@ export default function More() {
 
       <div className="text-center pt-4">
         <div className="text-[10px] font-mono uppercase tracking-widest text-text-muted">
-          RootMC Terminal · v1.0
+          RootMC Terminal · v1.1 · Phase 2
         </div>
       </div>
     </motion.div>

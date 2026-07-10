@@ -2,10 +2,13 @@ import React, { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import { Flame, Gift, ExternalLink, Vote as VoteIcon, Check, Lock, Sparkles } from "lucide-react";
+import { Flame, Gift, ExternalLink, Vote as VoteIcon, Check, Lock, Sparkles, AlertTriangle } from "lucide-react";
 import { api } from "../lib/api";
 import { useAuth } from "../lib/auth";
 import { fmtCountdown } from "../lib/format";
+import { USE_MOCK, LIVE_REWARDS_AVAILABLE } from "../lib/rootmc-api";
+
+const REWARDS_GATED = !USE_MOCK && !LIVE_REWARDS_AVAILABLE;
 
 export default function Rewards() {
   const { user, refresh } = useAuth();
@@ -39,6 +42,19 @@ export default function Rewards() {
         <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-text-secondary">Earn</div>
         <h1 className="font-display font-extrabold text-3xl tracking-tight">Rewards</h1>
       </div>
+
+      {REWARDS_GATED && (
+        <div
+          className="rounded-md border border-warn/30 bg-warn/5 p-3 flex items-start gap-2"
+          data-testid="rewards-gated-banner"
+        >
+          <AlertTriangle size={14} className="text-warn shrink-0 mt-0.5" />
+          <div className="text-[11px] leading-relaxed text-warn font-mono">
+            Coming soon — treasury wiring. Claims are disabled until the Worker
+            check-in / vote routes ship on api.rootmc.net.
+          </div>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="flex gap-1 p-1 bg-bg-surface/60 border border-white/5 rounded-md">
@@ -148,16 +164,18 @@ function CheckInTab({ refreshUser }) {
 
           <motion.button
             whileTap={{ scale: 0.97 }}
-            disabled={!status.can_claim || claiming}
+            disabled={!status.can_claim || claiming || REWARDS_GATED}
             onClick={claim}
             data-testid="claim-checkin-btn"
             className={`mt-5 w-full rounded-md py-3.5 font-bold font-display tracking-tight text-base transition-colors ${
-              status.can_claim
+              status.can_claim && !REWARDS_GATED
                 ? "bg-gold hover:bg-[#E6A600] text-black animate-pulseGold"
                 : "bg-white/5 text-text-secondary cursor-not-allowed border border-white/10"
             }`}
           >
-            {claiming
+            {REWARDS_GATED
+              ? "Coming soon"
+              : claiming
               ? "Claiming…"
               : status.can_claim
               ? "Claim reward"
@@ -307,11 +325,11 @@ function VoteTab({ refreshUser }) {
               ) : showClaim ? (
                 <button
                   onClick={() => claim(s)}
-                  disabled={claiming === s.id}
+                  disabled={claiming === s.id || REWARDS_GATED}
                   data-testid={`vote-claim-${s.id}`}
-                  className="rounded-md bg-gold hover:bg-[#E6A600] text-black font-bold px-3 py-2 text-xs"
+                  className="rounded-md bg-gold hover:bg-[#E6A600] disabled:opacity-50 disabled:cursor-not-allowed text-black font-bold px-3 py-2 text-xs"
                 >
-                  {claiming === s.id ? "…" : "Claim"}
+                  {REWARDS_GATED ? "Soon" : claiming === s.id ? "…" : "Claim"}
                 </button>
               ) : (
                 <button

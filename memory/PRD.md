@@ -65,6 +65,34 @@ Existing repo surfaces (`web/`, `api/rootmc-*`, `android/`) are **untouched** �
 - **74/74** Playwright UI assertions pass end-to-end.
 - Manual screenshot review confirms design guideline adherence.
 
+## Phase 2 additions (2026-01 — Emergent last push)
+
+### Bug fixes from `test_reports/iteration_1.json`
+- ✅ `TopBar.jsx` — avatar now uses `navigate('/more')` (react-router SPA nav) instead of `window.location.href`.
+- ✅ `server.py` — `/checkin/claim` and `/vote/claim` now return the post-update wallet balance via `find_one_and_update(return_document=AFTER)` (fresh value, no race).
+- ✅ Countdown math (`Rewards.jsx`) — already fixed with `loadedAtRef` anchor; verified.
+
+### Live API scaffolding (Block 1–2)
+- ✅ New `frontend/src/lib/rootmc-api.js` — axios client for `api.rootmc.net`, exports the production endpoint map (server/economy/market/me/leaderboards/daily-report/link-complete/checkin/vote).
+- ✅ Env toggles in `frontend/.env` + `frontend/.env.example`:
+  - `REACT_APP_ROOTMC_API` — Cloudflare Worker base URL.
+  - `REACT_APP_USE_MOCK` — default `true` for preview; flip to `false` on `main` to switch to live worker.
+  - `REACT_APP_DEMO_LINK` — controls local demo `/link` code issuance.
+  - `REACT_APP_LIVE_REWARDS` — feature flag for the treasury-backed check-in/vote routes.
+
+### Rewards guarding (Block 3)
+- ✅ When `USE_MOCK=false` **and** `LIVE_REWARDS=false`, the Rewards screen shows a warn banner ("Coming soon — treasury wiring") and disables both check-in and vote claim buttons in production. **Never mints Gold in Mongo in prod.**
+
+### UX polish (Block 5)
+- ✅ `usePullToRefresh` hook + `PullIndicator` — Home, Market, Portfolio now support the mobile gesture.
+- ✅ `SyncBadge` — "Synced Ns/m/h ago" pill on Home (Economy Pulse), Market (header), Portfolio (Net worth header).
+- ✅ `ServerHealthBanner` — sticky banner under top bar when API is unreachable or server offline.
+- ✅ PWA install prompt: `public/service-worker.js` (network-first for HTML, cache-first for assets, skips `/api/*`), registered in `src/index.js`. `manifest.json` updated with description, categories, and SVG icons (`icon-192.svg`, `icon-512.svg`).
+- ✅ More tab: **Player Search** field (opens `rootmc.net/player/?u=…` in a new tab) + **Beta Feedback** row (Discord).
+
+### Deploy docs
+- ✅ `frontend/.env.example` documents every flag for Cloudflare Pages deploy at `app.rootmc.net`.
+
 ## What's NOT wired (backlog)
 
 ### P0 — production wiring

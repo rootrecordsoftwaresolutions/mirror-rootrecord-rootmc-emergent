@@ -23,3 +23,12 @@ root.render(
     />
   </BrowserRouter>
 );
+
+// Phase 2: register PWA service worker (offline shell + install prompt)
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("/service-worker.js")
+      .catch(() => { /* SW is best-effort */ });
+  });
+}

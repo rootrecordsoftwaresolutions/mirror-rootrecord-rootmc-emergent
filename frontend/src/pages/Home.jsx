@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
 import { useAuth } from "../lib/auth";
 import { fmtG, fmtPct, deltaColor } from "../lib/format";
 import Sparkline from "../components/Sparkline";
+import SyncBadge from "../components/SyncBadge";
+import PullIndicator from "../components/PullIndicator";
+import { usePullToRefresh } from "../lib/usePullToRefresh";
 import { ArrowUpRight, ArrowDownRight, Flame, Vote as VoteIcon, Coins, Activity, TrendingUp } from "lucide-react";
 
 const fade = { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.3 } };
@@ -17,35 +20,40 @@ export default function Home() {
   const [status, setStatus] = useState(null);
   const [report, setReport] = useState(null);
   const [checkin, setCheckin] = useState(null);
+  const [syncedAt, setSyncedAt] = useState(null);
 
-  useEffect(() => {
-    (async () => {
+  const load = useCallback(async () => {
+    try {
+      const [ec, mk, st, rp] = await Promise.all([
+        api.get("/economy/overview"),
+        api.get("/market/items?sort=gainers"),
+        api.get("/server/status"),
+        api.get("/daily-report/latest"),
+      ]);
+      setEconomy(ec.data);
+      setMarket(mk.data.items);
+      setStatus(st.data);
+      setReport(rp.data);
+      setSyncedAt(Date.now());
+    } catch { /* noop */ }
+    if (user) {
       try {
-        const [ec, mk, st, rp] = await Promise.all([
-          api.get("/economy/overview"),
-          api.get("/market/items?sort=gainers"),
-          api.get("/server/status"),
-          api.get("/daily-report/latest"),
-        ]);
-        setEconomy(ec.data);
-        setMarket(mk.data.items);
-        setStatus(st.data);
-        setReport(rp.data);
+        const { data } = await api.get("/checkin/status");
+        setCheckin(data);
       } catch { /* noop */ }
-      if (user) {
-        try {
-          const { data } = await api.get("/checkin/status");
-          setCheckin(data);
-        } catch { /* noop */ }
-      }
-    })();
+    }
   }, [user]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const ptr = usePullToRefresh(load);
 
   const gainers = market.slice(0, 4);
   const losers = [...market].sort((a, b) => a.change_24h_pct - b.change_24h_pct).slice(0, 4);
 
   return (
-    <motion.div {...fade} className="px-4 pt-4 space-y-6" data-testid="home-screen">
+    <motion.div {...fade} className="px-4 pt-4 space-y-6 relative" data-testid="home-screen">
+      <PullIndicator {...ptr} />
       {/* Greeting / Signed-in state */}
       {user ? (
         <div className="flex items-center gap-3">
@@ -102,7 +110,13 @@ export default function Home() {
       </div>
 
       {/* Economy pulse strip */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="flex items-center justify-between">
+        <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-text-secondary">
+          Economy Pulse
+        </div>
+        <SyncBadge syncedAt={syncedAt} />
+      </div>
+      <div className="grid grid-cols-2 gap-3 !mt-2">
         <PulseCard
           icon={<Coins size={14} />}
           label="Treasury"

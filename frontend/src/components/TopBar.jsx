@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
 import { useAuth } from "../lib/auth";
-import { Radio, ChevronDown } from "lucide-react";
 
 export default function TopBar() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [status, setStatus] = useState(null);
 
   useEffect(() => {
@@ -60,7 +61,7 @@ export default function TopBar() {
             <button
               className="h-8 w-8 rounded-md overflow-hidden border border-white/10 bg-bg-surface"
               data-testid="user-avatar-button"
-              onClick={() => (window.location.href = "/more")}
+              onClick={() => navigate("/more")}
               aria-label="Profile"
             >
               <img src={user.head_url} alt={user.minecraft_username} className="h-full w-full object-cover" />

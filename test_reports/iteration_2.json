@@ -1,0 +1,38 @@
+{
+  "summary": "Phase 2 RootMC verification complete. Backend: 32/32 pytest passed (all regression + 2 new assertions verifying /checkin/claim & /vote/claim new_wallet_balance now matches /auth/me post-increment via find_one_and_update ReturnDocument.AFTER, + 1 new PWA manifest test). Frontend: all 10 review scenarios verified on live preview at REACT_APP_BACKEND_URL. TopBar avatar SPA navigation confirmed (URL -> /more, bottom-nav DOM anchor preserved -> no full reload). Player search disabled/enabled thresholds correct (0/2 chars disabled, 3+ enabled) and popup opens rootmc.net/player/?u=Notch. Beta feedback row present. SyncBadge visible on Home, Market, Portfolio. ServerHealthBanner correctly hidden when server online. PWA /manifest.json returns 200 with short_name=RootMC + 2 icons; /service-worker.js returns 200. Rewards gated banner correctly hidden (USE_MOCK=true) and claim button works (+10G, streak-day-1 becomes done, button disabled after). No console errors during full flow.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Home / TopBar", "issues": ["Sonner success toast (e.g. 'Linked as <user>') stays for ~4s and overlays the top-right avatar area. force=True Playwright clicks still hit the toast; end-users tapping the avatar immediately after login will tap the toast. Consider setting sonner position to bottom-center or reducing default duration, or z-index the top bar above the toast."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "server.py now uses find_one_and_update(return_document=ReturnDocument.AFTER) for both /checkin/claim and /vote/claim — fixes the stale-wallet-balance issue from iteration_1 correctly. new_wallet_balance now matches /auth/me exactly.",
+    "server.py is 668 lines — still under the 700-line soft cap but close. Splitting into routers (auth/market/portfolio/rewards) still recommended before further growth.",
+    "SyncBadge computes staleness from Date.now() - syncedAt every 15s — correct pattern; loadedAtRef in Rewards.jsx now also uses this pattern so the iteration_1 countdown-stall issue is resolved.",
+    "ServerHealthBanner sticky top offset is hardcoded to top-[57px] which assumes the top bar's exact height; if TopBar height changes the banner will overlap. Consider a shared layout token or position:relative in the parent.",
+    "usePullToRefresh is applied on Home, Market, Portfolio — good; verify on iOS Safari that overscroll doesn't fight it (not tested in headless Chromium).",
+    "rootmc-api.js exports USE_MOCK and LIVE_REWARDS_AVAILABLE from process.env at build time — since REACT_APP_USE_MOCK=true here the gated banner never renders, matching the test expectation.",
+    "public/service-worker.js is served correctly via CRA public/ passthrough (200 OK) but is not auto-registered in index.js. If the goal is real PWA install prompts you'll need navigator.serviceWorker.register('/service-worker.js') in index.js — currently the manifest allows install prompt but the SW never activates for users."
+  ],
+  "updated_files": [
+    "/app/backend/tests/backend_test.py (added new_wallet_balance == /auth/me assertions for checkin & vote; added TestPWA::test_manifest_json_valid)"
+  ],
+  "success_rate": {"backend": "100% (32/32)", "frontend": "100% (10/10 scenarios)"},
+  "test_credentials": "None — /link demo mode. Any Minecraft username (3-16 chars). /auth/link/start returns the 6-char code which is auto-prefilled into the Auth screen code field. Fresh test users this run: P2QaBot, P2QaSpa, SpaTester1, PhaseTwoQA, PhaseTwoTester (also QaBot*, TestQA, FlowUser, Reuse from pytest).",
+  "seed_data_creation": "Backend auto-seeds 18 market items + economy/server_status/daily_report/leaderboards KV on startup (unchanged from iteration_1).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "REACT_APP_USE_MOCK=true and REACT_APP_LIVE_REWARDS=false in preview env — rewards-gated-banner is NOT expected to render. New components (SyncBadge, PullIndicator, ServerHealthBanner) have their own data-testids: sync-badge, server-health-banner, server-health-dismiss. TopBar avatar uses SPA navigate() (verified by DOM anchor preservation trick — set data-anchor on bottom-nav before click, check same node after). Player search: [data-testid=more-player-search-input/submit] where submit is disabled if trim().length < 3. Beta feedback: [data-testid=more-beta-feedback]. Bottom nav testids are nav-home/market/portfolio/rewards/more (not bottom-nav-*). Auth completion button is data-testid=auth-complete-btn (not auth-complete-link-btn). If a test needs to click the top-bar avatar, wait ~5s after login for the Sonner 'Linked as ...' toast to auto-dismiss, otherwise the toast overlays the avatar and Playwright force clicks still hit the toast.",
+  "rca of the issue": "N/A — no bugs found this iteration. Both flagged concerns from iteration_1 (stale wallet balance, stale countdown) are resolved: server.py uses find_one_and_update(return_document=AFTER); Rewards.jsx uses loadedAtRef fixed timestamp for countdown math."
+}

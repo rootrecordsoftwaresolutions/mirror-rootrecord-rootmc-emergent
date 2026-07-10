@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Area, AreaChart, ResponsiveContainer, YAxis, PieChart, Pie, Cell } from "recharts";
@@ -7,22 +7,34 @@ import { api } from "../lib/api";
 import { useAuth } from "../lib/auth";
 import { fmtG, fmtPct } from "../lib/format";
 import Sparkline from "../components/Sparkline";
+import SyncBadge from "../components/SyncBadge";
+import PullIndicator from "../components/PullIndicator";
+import { usePullToRefresh } from "../lib/usePullToRefresh";
 
 const COLORS = ["#FFB800", "#0A84FF", "#00F58C", "#FF9F0A", "#8B5CF6"];
 
 export default function Portfolio() {
   const nav = useNavigate();
-  const { user } = useAuth();
+  const { user, refresh: refreshUser } = useAuth();
   const [pf, setPf] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [syncedAt, setSyncedAt] = useState(null);
 
-  useEffect(() => {
+  const load = useCallback(async () => {
     if (!user) return;
-    api
-      .get("/portfolio/me")
-      .then(({ data }) => setPf(data))
-      .finally(() => setLoading(false));
-  }, [user]);
+    try {
+      const { data } = await api.get("/portfolio/me");
+      setPf(data);
+      setSyncedAt(Date.now());
+      refreshUser();
+    } finally {
+      setLoading(false);
+    }
+  }, [user, refreshUser]);
+
+  useEffect(() => { if (user) load(); }, [user, load]);
+
+  const ptr = usePullToRefresh(load);
 
   if (!user) {
     return (
@@ -60,12 +72,16 @@ export default function Portfolio() {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="px-4 pt-4 pb-4 space-y-5"
+      className="px-4 pt-4 pb-4 space-y-5 relative"
       data-testid="portfolio-screen"
     >
+      <PullIndicator {...ptr} />
       <div>
-        <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-text-secondary">
-          Net worth
+        <div className="flex items-center justify-between">
+          <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-text-secondary">
+            Net worth
+          </div>
+          <SyncBadge syncedAt={syncedAt} />
         </div>
         <div className="mt-1 font-mono text-5xl sm:text-6xl font-bold tracking-tightest text-white num" data-testid="portfolio-net-worth">
           {fmtG(pf.net_worth, 2)}

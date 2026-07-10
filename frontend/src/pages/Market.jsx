@@ -1,9 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../lib/api";
 import { fmtPct, deltaColor } from "../lib/format";
 import Sparkline from "../components/Sparkline";
+import SyncBadge from "../components/SyncBadge";
+import PullIndicator from "../components/PullIndicator";
+import { usePullToRefresh } from "../lib/usePullToRefresh";
 import { ArrowUpRight, ArrowDownRight, Search } from "lucide-react";
 
 const sorts = [
@@ -31,14 +34,22 @@ export default function Market() {
   const [q, setQ] = useState("");
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [syncedAt, setSyncedAt] = useState(null);
 
-  useEffect(() => {
+  const load = useCallback(async () => {
     setLoading(true);
-    api
-      .get("/market/items", { params: { sort, ...(cat ? { category: cat } : {}) } })
-      .then(({ data }) => setItems(data.items))
-      .finally(() => setLoading(false));
+    try {
+      const { data } = await api.get("/market/items", { params: { sort, ...(cat ? { category: cat } : {}) } });
+      setItems(data.items);
+      setSyncedAt(Date.now());
+    } finally {
+      setLoading(false);
+    }
   }, [sort, cat]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const ptr = usePullToRefresh(load);
 
   useEffect(() => {
     const sp = new URLSearchParams(params);
@@ -57,12 +68,16 @@ export default function Market() {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25 }}
-      className="px-4 pt-4 space-y-4"
+      className="px-4 pt-4 space-y-4 relative"
       data-testid="market-screen"
     >
-      <div>
-        <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-text-secondary">Player Shops</div>
-        <h1 className="font-display font-extrabold text-3xl tracking-tight">Market</h1>
+      <PullIndicator {...ptr} />
+      <div className="flex items-end justify-between">
+        <div>
+          <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-text-secondary">Player Shops</div>
+          <h1 className="font-display font-extrabold text-3xl tracking-tight">Market</h1>
+        </div>
+        <SyncBadge syncedAt={syncedAt} className="mb-1" />
       </div>
 
       {/* Search */}

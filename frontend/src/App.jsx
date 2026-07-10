@@ -5,6 +5,7 @@ import { AuthProvider } from "./lib/auth";
 import BottomNav from "./components/BottomNav";
 import TopBar from "./components/TopBar";
 import TickerStrip from "./components/TickerStrip";
+import ServerHealthBanner from "./components/ServerHealthBanner";
 import Home from "./pages/Home";
 import Market from "./pages/Market";
 import MarketDetail from "./pages/MarketDetail";
@@ -23,6 +24,7 @@ export default function App() {
         {!hideChrome && (
           <>
             <TopBar />
+            <ServerHealthBanner />
             <TickerStrip />
           </>
         )}

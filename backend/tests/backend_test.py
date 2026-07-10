@@ -242,11 +242,18 @@ class TestCheckin:
         assert j["success"] is True
         assert j["reward"]["gold"] == 10
         assert j["new_streak"] == 1
+        assert "new_wallet_balance" in j
 
         # verify via /auth/me
         me2 = auth_client.get(f"{API}/auth/me").json()
         assert round(me2["wallet_gold"] - pre_wallet, 2) == 10.00
         assert me2["streak_count"] == 1
+
+        # NEW: new_wallet_balance in claim response must match /auth/me AFTER increment
+        assert round(j["new_wallet_balance"], 2) == round(me2["wallet_gold"], 2), (
+            f"Claim response new_wallet_balance={j['new_wallet_balance']} but "
+            f"/auth/me wallet_gold={me2['wallet_gold']}"
+        )
 
     def test_claim_cooldown(self, auth_client):
         r = auth_client.post(f"{API}/checkin/claim")
@@ -277,9 +284,16 @@ class TestVote:
         j = r.json()
         assert j["success"] is True
         assert j["reward_gold"] == 20
+        assert "new_wallet_balance" in j
 
         me_after = auth_client.get(f"{API}/auth/me").json()
         assert round(me_after["wallet_gold"] - pre_wallet, 2) == 20.00
+
+        # NEW: new_wallet_balance in claim response must match /auth/me AFTER increment
+        assert round(j["new_wallet_balance"], 2) == round(me_after["wallet_gold"], 2), (
+            f"Vote response new_wallet_balance={j['new_wallet_balance']} but "
+            f"/auth/me wallet_gold={me_after['wallet_gold']}"
+        )
 
         # cooldown
         r2 = auth_client.post(f"{API}/vote/claim", json={"site_id": "planetminecraft"})
@@ -296,3 +310,15 @@ def _cleanup():
     yield
     # No dedicated cleanup endpoint; test users are prefixed with QaBot/FlowUser/Reuse
     # and are harmless (demo mode).
+
+
+# ---------- PWA manifest ----------
+class TestPWA:
+    def test_manifest_json_valid(self, s):
+        r = s.get(f"{BASE_URL}/manifest.json")
+        assert r.status_code == 200, f"/manifest.json returned {r.status_code}"
+        j = r.json()
+        assert j.get("short_name") == "RootMC"
+        assert isinstance(j.get("icons"), list) and len(j["icons"]) > 0
+        for icon in j["icons"]:
+            assert "src" in icon and "sizes" in icon
