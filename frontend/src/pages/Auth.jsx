@@ -5,11 +5,14 @@ import { toast } from "sonner";
 import { KeyRound, Copy, Check } from "lucide-react";
 import { api } from "../lib/api";
 import { useAuth } from "../lib/auth";
+import { USE_MOCK, DEMO_LINK } from "../lib/rootmc-api";
+
+const LIVE_LINK = !USE_MOCK && !DEMO_LINK;
 
 export default function Auth() {
   const nav = useNavigate();
   const { login } = useAuth();
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(LIVE_LINK ? 2 : 1);
   const [username, setUsername] = useState("");
   const [code, setCode] = useState("");
   const [issuedCode, setIssuedCode] = useState(null);
@@ -71,7 +74,7 @@ export default function Auth() {
         </p>
       </div>
 
-      {step === 1 ? (
+      {step === 1 && !LIVE_LINK ? (
         <form onSubmit={startLink} className="space-y-4">
           <div>
             <label className="text-[10px] font-mono uppercase tracking-[0.2em] text-text-secondary mb-1.5 block">
@@ -97,6 +100,12 @@ export default function Auth() {
         </form>
       ) : (
         <div className="space-y-4">
+          {LIVE_LINK && (
+            <div className="rounded-md border border-white/10 bg-bg-surface p-4 text-xs text-text-secondary leading-relaxed">
+              Run <span className="font-mono text-white">/link</span> in-game on{" "}
+              <span className="font-mono text-white">play.rootmc.net</span>, then paste the 6-character code below.
+            </div>
+          )}
           {issuedCode && (
             <div className="rounded-md border border-gold/30 bg-gold/5 p-4">
               <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold mb-1">

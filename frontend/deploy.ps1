@@ -5,25 +5,25 @@
 $ErrorActionPreference = "Stop"
 $PrevNativeErr = $ErrorActionPreference
 
-$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-. (Join-Path $repoRoot "scripts\load-env.ps1")
+$workspaceRoot = "F:\RootMC Workspace"
+if (Test-Path (Join-Path $workspaceRoot "scripts\load-rootmc-env.ps1")) {
+    . (Join-Path $workspaceRoot "scripts\load-rootmc-env.ps1")
+} elseif (Test-Path (Join-Path $workspaceRoot "scripts\load-env.ps1")) {
+    . (Join-Path $workspaceRoot "emergent-repo\scripts\load-env.ps1")
+}
 
 if (-not $env:CLOUDFLARE_API_TOKEN -or $env:CLOUDFLARE_API_TOKEN.Length -lt 20) {
-    throw "Set CLOUDFLARE_API_TOKEN in repo root .env"
+    throw "Set CLOUDFLARE_API_TOKEN in RootMC Workspace\.env"
 }
 if (-not $env:CLOUDFLARE_ACCOUNT_ID) {
-    throw "Set CLOUDFLARE_ACCOUNT_ID in repo root .env"
+    throw "Set CLOUDFLARE_ACCOUNT_ID in RootMC Workspace\.env"
 }
 
 Set-Location $PSScriptRoot
 
-# Production build env — reads from .env if present, otherwise sets safe defaults.
-# For live prod the Pages dashboard must ALSO set these under "Environment variables (Production)".
 if (-not $env:REACT_APP_ROOTMC_API)   { $env:REACT_APP_ROOTMC_API   = "https://api.rootmc.net" }
 if (-not $env:REACT_APP_USE_MOCK)     { $env:REACT_APP_USE_MOCK     = "false" }
 if (-not $env:REACT_APP_DEMO_LINK)    { $env:REACT_APP_DEMO_LINK    = "false" }
-# Do NOT default REACT_APP_LIVE_REWARDS=true — the human flips this only after
-# api.rootmc.net exposes /app/checkin/* and /app/vote/* routes.
 if (-not $env:REACT_APP_LIVE_REWARDS) { $env:REACT_APP_LIVE_REWARDS = "false" }
 
 Write-Host "Building rootmc-app with:"
@@ -32,14 +32,16 @@ Write-Host "  REACT_APP_USE_MOCK     = $env:REACT_APP_USE_MOCK"
 Write-Host "  REACT_APP_DEMO_LINK    = $env:REACT_APP_DEMO_LINK"
 Write-Host "  REACT_APP_LIVE_REWARDS = $env:REACT_APP_LIVE_REWARDS"
 
-# Install + build via yarn (matches this repo's package manager)
-if (Test-Path "yarn.lock") {
-    yarn install --frozen-lockfile 2>&1 | Out-Host
-    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    yarn build 2>&1 | Out-Host
-    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-} else {
-    npm ci 2>&1 | Out-Host
+if (Get-Command yarn -ErrorAction SilentlyContinue) {
+    if (Test-Path "yarn.lock") {
+        yarn install --frozen-lockfile 2>&1 | Out-Host
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        yarn build 2>&1 | Out-Host
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    }
+}
+if (-not (Test-Path "build\index.html")) {
+    npm install 2>&1 | Out-Host
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     npm run build 2>&1 | Out-Host
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -66,4 +68,4 @@ $ErrorActionPreference = $PrevNativeErr
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 Write-Host "Done. Attach custom domain app.rootmc.net in Cloudflare Dashboard: Pages > rootmc-app > Custom domains."
-Write-Host "Reminder: only flip REACT_APP_LIVE_REWARDS=true after Worker routes /api/rootmc/app/checkin/* and /api/rootmc/app/vote/* are deployed on api.rootmc.net."
+Write-Host "After Worker deploy + D1 0139: set REACT_APP_LIVE_REWARDS=true in Pages env and redeploy."

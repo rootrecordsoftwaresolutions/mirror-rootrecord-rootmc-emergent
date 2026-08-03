@@ -27,6 +27,10 @@ export const ROOTMC_CHANNELS = {
   governance: "1522406451413385317",
   voting: "1522413185364398090",
   proposals: "1522417281928396891",
+  /** Public paid plugin sales research / planning. */
+  pluginSales: "1529247837420912751",
+  /** Root-Try QA / rewarded tryout checklist. */
+  tasks: "1529753661901639761",
 };
 
 const CHANNEL_ALIASES = {
@@ -45,6 +49,13 @@ const CHANNEL_ALIASES = {
   "#economy-guide": "economy",
   "daily-report": "dailyReport",
   dailyReport: "dailyReport",
+  pluginSales: "pluginSales",
+  "plugin-sales": "pluginSales",
+  "#plugin-sales": "pluginSales",
+  tasks: "tasks",
+  "#tasks": "tasks",
+  try: "tasks",
+  "root-try": "tasks",
 };
 
 export function resolveRootMcChannel(nameOrId) {

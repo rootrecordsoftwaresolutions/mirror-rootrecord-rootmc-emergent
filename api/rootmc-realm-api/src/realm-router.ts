@@ -44,6 +44,7 @@ import {
 import { handleTownySync, reconcileRootMcTownyDiscord } from "./discord-rootmc-towny";
 import { runRootMcCombinedDailyPreview } from "./rootmc-daily-preview";
 import { handleDailyReportPublic } from "./rootmc-daily-report-public";
+import { handleRootMcAppRewards } from "./rootmc-app-rewards";
 import { previousHstDayKey, resolveServerId, runRootMcDailyReportCron } from "./rootmc-daily-report";
 import { runRootMcDailyCategoryReport } from "./rootmc-daily-category-reports";
 import { runFullDailyReportSuite } from "./rootmc-daily-report-runner";
@@ -61,7 +62,6 @@ import { handleRootMcShopAlerts } from "./rootmc-shop-alerts";
 import { handleRootMcTownyFacing } from "./rootmc-towny-facing";
 import { handleRootMcSeason } from "./rootmc-season-arcs";
 import { handleRootMcBlueprintRoutes } from "./rootmc-blueprints";
-import { handlePaperTokenRoutes } from "./rootmc-paper-token";
 import { runMysqlEconomyPullCron, runTownyMysqlEnrichmentNow } from "./rootmc-mysql-economy-pull";
 import { handleGovernanceRoutes } from "./rootmc-governance-routes";
 import { handleGovernanceWebRoutes } from "./rootmc-governance-web";
@@ -494,6 +494,9 @@ export async function handleRequest(
     const dailyReportPublicRes = await handleDailyReportPublic(request, env, sub, method);
     if (dailyReportPublicRes) return dailyReportPublicRes;
 
+    const appRewardsRes = await handleRootMcAppRewards(request, env, sub, method);
+    if (appRewardsRes) return appRewardsRes;
+
     const worldAiRes = await handleRootMcWorldAi(request, env, sub, method, ctx);
     if (worldAiRes) return worldAiRes;
 
@@ -745,9 +748,6 @@ export async function handleRequest(
 
     const governanceRes = await handleGovernanceRoutes(request, env, govSub, method);
     if (governanceRes) return governanceRes;
-
-    const paperTokenRes = await handlePaperTokenRoutes(request, env, sub, method);
-    if (paperTokenRes) return paperTokenRes;
 
     const valueRes = await handleItemValueRoute(request, env, sub, method);
     if (valueRes) return valueRes;

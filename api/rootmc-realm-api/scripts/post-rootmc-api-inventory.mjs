@@ -126,7 +126,6 @@ GET \`/api/rootmc/towny/me\` (Bearer) · GET \`/api/rootmc/season\`
 GET \`/api/rootmc/weekly-activity/highlights\` — public weekly awards (rootmc.net)
 
 **Treasury:** GET \`/api/rootmc/treasury/{sid}/reserve\` · \`/{sid}/ledger\` · \`/{sid}/town-taxes\`
-**Paper token:** GET \`/api/rootmc/paper-token/quote\` · \`/history\`
 **Vault market:** GET \`/api/rootmc/stock-market\` · \`/items\` · \`/history\` · GET \`/api/rootmc/vault\` — POST \`/api/rootmc/buy\` · \`/api/rootmc/vault/claim\` (Bearer)`,
 
   `## Minecraft link & RootStat (\`/api/realm/minecraft/…\`)

@@ -69,3 +69,4 @@
 0136_rootmc_one_time_shortfall_paydown.sql
 0137_rootmc_one_time_shortfall_reserve_debit.sql
 0138_rootmc_align_reserve_to_missing_gap.sql
+0139_rootmc_app_rewards.sql

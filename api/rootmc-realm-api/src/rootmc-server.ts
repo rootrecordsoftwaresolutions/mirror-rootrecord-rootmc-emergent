@@ -58,29 +58,24 @@ export const REALM_PLUGIN_BASE = ROOTMC_PLUGINS;
 /** Published plugin jars (remote server pulls via RootMC heartbeat — no SSH). */
 export const PLUGIN_RELEASES = {
   rootmc: {
-    version: "1.3.50",
-    filename: "rootmc-1.3.50.jar",
-    url: `${REALM_PLUGIN_BASE}/rootmc-1.3.50.jar`,
-  },
-  rootmc_shops: {
-    version: "1.3.57",
-    filename: "rootmc-shops-1.3.57.jar",
-    url: `${REALM_PLUGIN_BASE}/rootmc-shops-1.3.57.jar`,
-  },
-  roothelp: {
-    version: "1.1.1",
-    filename: "roothelp-1.1.1.jar",
-    url: `${REALM_PLUGIN_BASE}/roothelp-1.1.1.jar`,
+    version: "1.8.0",
+    filename: "rootmc-1.8.0.jar",
+    url: `${REALM_PLUGIN_BASE}/rootmc-1.8.0.jar`,
   },
   root_essentials: {
-    version: "1.4.65",
-    filename: "root-essentials-1.4.65.jar",
-    url: `${REALM_PLUGIN_BASE}/root-essentials-1.4.65.jar`,
+    version: "1.8.0",
+    filename: "root-essentials-1.8.0.jar",
+    url: `${REALM_PLUGIN_BASE}/root-essentials-1.8.0.jar`,
   },
-  root_rewards: {
-    version: "1.0.17",
-    filename: "root-rewards-1.0.17.jar",
-    url: `${REALM_PLUGIN_BASE}/root-rewards-1.0.17.jar`,
+  root_core: {
+    version: "1.8.0",
+    filename: "root-core-1.8.0.jar",
+    url: `${REALM_PLUGIN_BASE}/root-core-1.8.0.jar`,
+  },
+  root_skills: {
+    version: "1.8.0",
+    filename: "root-skills-1.8.0.jar",
+    url: `${REALM_PLUGIN_BASE}/root-skills-1.8.0.jar`,
   },
 } as const;
 
@@ -530,10 +525,7 @@ export async function handleRootMcServer(
       rootstat_config_defaults: ROOTMC_CONFIG_DEFAULTS,
       plugin_updates: [
         { plugin: "rootmc", ...PLUGIN_RELEASES.rootmc },
-        { plugin: "rootmc-shops", ...PLUGIN_RELEASES.rootmc_shops },
-        { plugin: "roothelp", ...PLUGIN_RELEASES.roothelp },
         { plugin: "root-essentials", ...PLUGIN_RELEASES.root_essentials },
-        { plugin: "root-rewards", ...PLUGIN_RELEASES.root_rewards },
       ],
     });
   }

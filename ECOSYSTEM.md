@@ -75,6 +75,7 @@ Do **not** route new RootMC features through `rootrecord-primary` or product sha
 | Bot application | `1511794429986345020` |
 | #general-chat | `1516108586307158088` |
 | #updates | `1520665313631408251` |
+| #plugin-sales | `1529247837420912751` |
 | #daily-report | `1516395175780286615` |
 | MC linked role | `1516396491973984256` |
 | Town / nation categories | `1516282271848726628`, `1516283613283483749` |

@@ -215,6 +215,7 @@
               <tr><td><strong>Towny death fee</strong></td><td><strong>0</strong> (disabled)</td><td>—</td><td>RootMC uses custom PvP fee above instead</td></tr>
               <tr><td><strong>Inactivity tax</strong></td><td><strong>0.01% → 1%</strong> daily by idle week (after <strong>7-day</strong> grace)</td><td>Idle wallets; inactive town/nation banks</td><td>Server Reserve</td></tr>
               <tr><td><strong>Survey</strong></td><td><strong>25 G</strong> flat</td><td><code>/survey confirm</code></td><td>Server Reserve</td></tr>
+              <tr><td><strong>Surface teleport</strong></td><td><strong>10 G</strong> flat</td><td><code>/top</code></td><td>Server Reserve</td></tr>
               <tr><td><strong>Shop bulk stock</strong></td><td><strong>5 G</strong> flat</td><td><code>/shop stock confirm</code> (only if items stocked)</td><td>Server Reserve</td></tr>
               <tr><td><strong>Public warp</strong></td><td><strong>500 G</strong> flat</td><td><code>/warp create</code></td><td>Server Reserve</td></tr>
               <tr><td><strong>Rank purchase</strong></td><td><strong>500 – 150,000 G</strong> per tier</td><td><code>/rank buy</code></td><td>Server Reserve</td></tr>
@@ -233,7 +234,6 @@
               <tr><td><strong>Loan interest</strong></td><td><strong>10%</strong> on principal</td><td>Borrower at take</td><td>Owed balance (repay → reserve)</td></tr>
               <tr><td><strong>Loan borrow limit</strong></td><td><strong>100 G</strong> default · matches <code>/rank buy</code> tier price (up to <strong>150,000 G</strong>)</td><td>Borrower</td><td>Max principal per <code>/loan take</code></td></tr>
               <tr><td><strong>Loan income sweep</strong></td><td><strong>100%</strong> of incoming gold while in debt</td><td>Borrower</td><td>Loan balance first</td></tr>
-              <tr><td><strong>Paper ROOTMC trade</strong></td><td><strong>0.5%</strong> on buy/sell</td><td>Trader</td><td>Token market sink</td></tr>
               <tr><td><strong>Vote reward</strong></td><td><strong>1 – 20 G</strong> random per site</td><td>—</td><td>Voter wallet (reserve debit)</td></tr>
             </tbody>
           </table>
@@ -265,7 +265,7 @@
           <p>Mob, fall, lava, and environmental deaths: <strong>no</strong> balance fee. Full rules: <a href="#death">PvP death recycling</a>.</p>
 
           <h4>Inactivity tax — daily % after grace</h4>
-          <p><strong>Root-Upkeep</strong> runs at <strong>midnight HST</strong>. Grace: <strong>7 days</strong> without login. Tax = <strong>% of current balance</strong> (min balance <strong>0.01 G</strong>, min tax <strong>0.01 G</strong>).</p>
+          <p><strong>Root-Upkeep</strong> runs each <strong>Minecraft day</strong> (~30 real minutes; rollover at <strong>:15</strong> and <strong>:45</strong> HST). Grace: <strong>7 days</strong> without login. Tax = <strong>% of current balance</strong> (min balance <strong>0.01 G</strong>, min tax <strong>0.01 G</strong>).</p>
           <table class="wiki-table">
             <thead><tr><th>Days idle (after grace)</th><th>Daily rate</th><th>On 10,000 G wallet</th></tr></thead>
             <tbody>
@@ -289,15 +289,13 @@
           </table>
           <p>Limits: <strong>100 G</strong> with no purchased player rank; otherwise equals your highest <code>/rank buy</code> tier price (staff/donor groups ignored). <strong>3</strong> takes per 24h. Details: <a href="#loans">Personal loans</a>.</p>
 
-          <h4>Paper ROOTMC trading fee — 0.5%</h4>
-          <p><code>/token buy</code> and <code>/token sell</code> charge <strong>0.5%</strong> on the trade (cosmetic paper units tracking off-chain price — not wallet crypto). See <a href="/wiki/token/">$ROOTMC disclaimer</a>.</p>
-
           <h3>Flat service fees (Server Reserve)</h3>
           <p>From <code>root-essentials.yml</code> <code>fees.*</code> and <code>root-ranks.yml</code>. Most commands show <strong>[Confirm]</strong> before charging.</p>
           <table class="wiki-table">
             <thead><tr><th>Command</th><th>Fee</th><th>Notes</th></tr></thead>
             <tbody>
               <tr><td><code>/survey confirm</code></td><td><strong>25 G</strong></td><td>Chunk biome / slime / structure report</td></tr>
+              <tr><td><code>/top</code></td><td><strong>10 G</strong></td><td>Teleport to highest block at your X/Z</td></tr>
               <tr><td><code>/shop stock confirm</code></td><td><strong>5 G</strong></td><td>Only when items actually move into sell chests</td></tr>
               <tr><td><code>/warp create &lt;name&gt;</code></td><td><strong>500 G</strong></td><td>Register a public warp at your location</td></tr>
             </tbody>
@@ -435,6 +433,7 @@
             <thead><tr><th>Command</th><th>Fee</th><th>What you get</th></tr></thead>
             <tbody>
               <tr><td><code>/survey confirm</code></td><td><strong>25 G</strong></td><td>One-shot chunk report (slime chunk, biomes, structures) — <a href="/wiki/player/#survey">player guide</a></td></tr>
+              <tr><td><code>/top</code></td><td><strong>10 G</strong></td><td>Teleport to highest block at your X/Z</td></tr>
               <tr><td><code>/shop stock confirm</code></td><td><strong>5 G</strong></td><td>Move matching items from inventory into your sell-shop chests — fee applies only when items are stocked — <a href="/wiki/player/#shop-stock">player guide</a></td></tr>
               <tr><td><code>/warp create &lt;name&gt;</code></td><td><strong>500 G</strong></td><td>Register a public warp at your location (unique name)</td></tr>
               <tr><td><code>/rank buy</code></td><td><strong>500 – 150,000 G</strong></td><td>Buy the next LuckPerms player rank in order — see <a href="#taxes-fees-reference">rank price table</a></td></tr>
@@ -482,7 +481,7 @@
 
         <article id="inactivity-tax">
           <h2>Inactivity tax (Root-Upkeep)</h2>
-          <p><strong>Root-Upkeep</strong> runs once per day at <strong>midnight HST</strong>. It debits a small percentage from idle balances into the <strong>Server Reserve</strong> — the same closed-loop treasury as transaction tax and Towny sinks. Each charge is broadcast server-wide in chat.</p>
+          <p><strong>Root-Upkeep</strong> runs once per <strong>Minecraft day</strong> (~30 real minutes). It debits a small percentage from idle balances into the <strong>Server Reserve</strong> — the same closed-loop treasury as transaction tax and Towny sinks. Each charge is broadcast server-wide in chat.</p>
           <h3>Who gets taxed</h3>
           <table class="wiki-table">
             <thead><tr><th>Target</th><th>When tax applies</th></tr></thead>

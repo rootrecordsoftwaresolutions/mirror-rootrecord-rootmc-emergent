@@ -14,7 +14,6 @@ import { isWeeklyAwardsDue, previousCompletedHstWeekKey } from "./rootmc-hst-wee
 import { runWeeklyIntelligenceSuite } from "./rootmc-weekly-report-runner";
 import { runRootMcWeeklyActivityAwards, weeklyActivityAwardsPosted } from "./rootmc-weekly-activity-awards";
 import { isMonthlyDividendCronSlot, runMonthlyTreasuryDividendCron } from "./rootmc-treasury";
-import { runPaperTokenPriceCron } from "./rootmc-paper-token";
 import { runMysqlEconomyPullCron } from "./rootmc-mysql-economy-pull";
 import { runLiveEconomyStatusPost } from "./rootmc-live-economy-status";
 
@@ -85,11 +84,6 @@ export default {
     ctx.waitUntil(
       runRootMcDiscordActivitySync(env).catch((e) =>
         console.warn("rootmc_discord_activity_sync", e instanceof Error ? e.message : String(e)),
-      ),
-    );
-    ctx.waitUntil(
-      runPaperTokenPriceCron(env).catch((e) =>
-        console.warn("rootmc_paper_token_cron", e instanceof Error ? e.message : String(e)),
       ),
     );
     ctx.waitUntil(
